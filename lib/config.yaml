@@ -1,0 +1,31 @@
+model: "ours" # "_t" auto-appended when using time step
+use_time_step: True
+gpu_ids: "0" # *future use* (cuda device:0 is presumed)
+auto_launch_browser: False
+server_port: 7862
+server_name: "127.0.0.1"
+interpolation_settings:
+  max_splits: 10
+  gif_duration: 3000
+  create_gif: True
+  create_zip: True
+  create_txt: False
+realesrgan_settings:
+  model_name: "RealESRGAN_x4plus"
+  fp32: True
+  tiling: 256
+  tile_pad: 10
+upscale_settings:
+  file_types:
+  - "png"
+  - "jpg"
+  - "jpeg"
+  - "gif"
+  - "bmp"
+logviewer_settings:
+  max_lines: 25
+user_interface:
+  theme: "default"
+  css_file: "Interface/styles/webui.css"
+  log_file: None
+  show_header: True
