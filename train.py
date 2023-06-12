@@ -9,7 +9,7 @@ import random
 import argparse
 
 from lib.interpolate.model.Trainer import Model
-from dataset import VimeoDataset
+from lib.interpolate.dataset import VimeoDataset
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data.distributed import DistributedSampler
