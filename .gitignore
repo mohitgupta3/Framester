@@ -163,3 +163,5 @@ ckpt/
 temp_input_frames/
 temp_interpolated_frames/
 temp_upscaled_frames/
+
+*.mp4

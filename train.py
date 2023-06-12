@@ -8,7 +8,7 @@ import numpy as np
 import random
 import argparse
 
-from Trainer import Model
+from lib.interpolate.model.Trainer import Model
 from dataset import VimeoDataset
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter

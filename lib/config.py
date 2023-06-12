@@ -1,8 +1,8 @@
 from functools import partial
 import torch.nn as nn
 
-from model import feature_extractor
-from model import flow_estimation
+from .interpolate.model import feature_extractor
+from .interpolate.model import flow_estimation
 
 '''==========Model config=========='''
 def init_model_config(F=32, W=7, depth=[2, 2, 2, 4, 4]):
@@ -36,13 +36,3 @@ MODEL_CONFIG = {
         depth = [2, 2, 2, 4, 4]
     )
 }
-
-# MODEL_CONFIG = {
-#     'LOGNAME': 'ours_small',
-#     'MODEL_TYPE': (feature_extractor, flow_estimation),
-#     'MODEL_ARCH': init_model_config(
-#         F = 16,
-#         W = 7,
-#         depth = [2, 2, 2, 2, 2]
-#     )
-# }
