@@ -1,6 +1,8 @@
 # Framester
 
+<p align="center">
 <!-- PROJECT LOGO -->
+
 ![AI Video manipulation toolbox!](demo/assets/banner.jpg "FUCK YOU!")
 An AI driven Video manipulation toolkit
 
@@ -10,6 +12,7 @@ An AI driven Video manipulation toolkit
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
+</p>
 
 ## About The Project
 
