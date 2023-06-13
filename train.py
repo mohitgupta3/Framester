@@ -31,7 +31,6 @@ def train(model, local_rank, batch_size, data_path):
         writer = SummaryWriter('log/train_EMAVFI')
     step = 0
     nr_eval = 0
-    best = 0
     dataset = VimeoDataset('train', data_path)
     sampler = DistributedSampler(dataset)
     train_data = DataLoader(dataset, batch_size=batch_size, num_workers=8, pin_memory=True, drop_last=True, sampler=sampler)

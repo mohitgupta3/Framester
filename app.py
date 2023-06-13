@@ -220,48 +220,48 @@ with Blocks(
 
             return np.array(separation_matrix)
 
-        def put_highlighted_text(
-            input_arrey,
-            text,
-            position,
-            font=cv2.FONT_HERSHEY_SIMPLEX,
-            font_scale=1.0,
-            color=(170, 255, 0),
-            thickness=2,
-            highlight_color=(0, 0, 0),
-            alpha=0.5,
+        def put_highlighted_texts(
+            input_arrey: np.ndarray,
+            texts: dict = {},
+            font: int = cv2.FONT_HERSHEY_SIMPLEX,
+            font_scale: float = 1.0,
+            color: tuple = (170, 255, 0),
+            thickness: int = 2,
+            highlight_color: tuple = (0, 0, 0),
+            alpha: float = 0.5,
         ):
             # Convert the color to BGR format
             color = tuple(reversed(color))
             highlight_color = tuple(reversed(highlight_color))
 
-            # Get the text size
-            (text_width, text_height), _ = cv2.getTextSize(
-                text, font, font_scale, thickness
-            )
+            for text, position in texts.items():
+                # Get the text size
+                (text_width, text_height), _ = cv2.getTextSize(
+                    text, font, font_scale, thickness
+                )
 
-            # Calculate the bounding box coordinates
-            x, y = position
-            x2, y2 = x + text_width + 10, y - text_height - 10
+                # Calculate the bounding box coordinates
+                x, y = position
+                x2, y2 = x + text_width + 10, y - text_height - 10
 
-            # Create a transparent overlay image
-            overlay = input_arrey.copy()
-            cv2.rectangle(
-                overlay, (x, y), (x2 + 10, y2 - 10), highlight_color, cv2.FILLED
-            )
-            cv2.addWeighted(overlay, alpha, input_arrey, 1 - alpha, 0, input_arrey)
+                # Create a transparent overlay image
+                overlay = input_arrey.copy()
+                cv2.rectangle(
+                    overlay, (x, y), (x2 + 10, y2 - 10), highlight_color, cv2.FILLED
+                )
+                cv2.addWeighted(overlay, alpha, input_arrey, 1 - alpha, 0, input_arrey)
 
-            # Put the highlighted text on the image
-            cv2.putText(
-                input_arrey,
-                text,
-                (x + 10, y - 10),
-                font,
-                font_scale,
-                color,
-                thickness,
-                cv2.LINE_AA,
-            )
+                # Put the highlighted text on the image
+                cv2.putText(
+                    input_arrey,
+                    text,
+                    (x + 10, y - 10),
+                    font,
+                    font_scale,
+                    color,
+                    thickness,
+                    cv2.LINE_AA,
+                )
 
             return input_arrey
 
@@ -272,8 +272,8 @@ with Blocks(
         # Get the properties of the videos
         fps1 = video1.get(cv2.CAP_PROP_FPS)
         fps2 = video2.get(cv2.CAP_PROP_FPS)
-        width1 = int(video1.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height1 = int(video1.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        target_video_width = int(video1.get(cv2.CAP_PROP_FRAME_WIDTH))
+        target_video_height = int(video1.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
         # Calculate the frame repetition ratio for the lower FPS video
         repetition_ratio = int(round(fps2 / fps1))
@@ -281,16 +281,16 @@ with Blocks(
 
         if presentation_mode.startswith("Separate"):
             # If video width is greater than video height then merge videos vertically
-            merge_top_down = width1 > height1
+            merge_top_down = target_video_width > target_video_height
 
             # Create a VideoWriter object to save the merged video
             merged_video = cv2.VideoWriter(
                 output_path,
                 cv2.VideoWriter_fourcc(*"mp4v"),
                 fps2,
-                (width1, height1 * 2 + 2)
+                (target_video_width, target_video_height * 2 + 2)
                 if merge_top_down
-                else (width1 * 2 + 2, height1),
+                else (target_video_width * 2 + 2, target_video_height),
             )
 
             ret1, frame1 = video1.read()
@@ -303,9 +303,9 @@ with Blocks(
 
                 # Create a White canvas to merge the frames side by side
                 merged_frame = 255 * np.ones(
-                    shape=(2 + height1 * 2, width1, 3)
+                    shape=(2 + target_video_height * 2, target_video_width, 3)
                     if merge_top_down
-                    else (height1, 2 + width1 * 2, 3),
+                    else (target_video_height, 2 + target_video_width * 2, 3),
                     dtype=np.uint8,
                 )
 
@@ -319,22 +319,23 @@ with Blocks(
                 else:
                     repeat_frame = repeat_frame - 1
 
-                frame1 = put_highlighted_text(
-                    input_arrey=frame1, text=f"Original: {fps1} FPS", position=(25, 50)
+                frame1 = put_highlighted_texts(
+                    input_arrey=frame1, texts={f"Original: {fps1} FPS": (25, 50)}
                 )
-                frame2 = put_highlighted_text(
-                    input_arrey=frame2,
-                    text=f"Enhanced: {fps2+1} FPS",
-                    position=(25, 50),
+                frame2 = put_highlighted_texts(
+                    input_arrey=frame2, texts={f"Enhanced: {fps2+1} FPS": (25, 50)}
                 )
 
                 if merge_top_down:
                     (
-                        merged_frame[:height1, :width1],
-                        merged_frame[height1 + 2 :, :width1],
+                        merged_frame[:target_video_height, :target_video_width],
+                        merged_frame[target_video_height + 2 :, :target_video_width],
                     ) = (frame1, frame2)
                 else:
-                    merged_frame[:, :width1], merged_frame[:, width1 + 2 :] = (
+                    (
+                        merged_frame[:, :target_video_width],
+                        merged_frame[:, target_video_width + 2 :],
+                    ) = (
                         frame1,
                         frame2,
                     )
@@ -343,26 +344,24 @@ with Blocks(
                 merged_video.write(merged_frame)
 
         elif presentation_mode.startswith("Diagonal"):
-            separation_matrix = create_separation_matrix(n_rows=height1, n_cols=width1)
+            separation_matrix = create_separation_matrix(
+                n_rows=target_video_height, n_cols=target_video_width
+            )
 
             # Create a VideoWriter object to save the merged video
             merged_video = cv2.VideoWriter(
-                output_path, cv2.VideoWriter_fourcc(*"mp4v"), fps2, (width1, height1)
+                output_path,
+                cv2.VideoWriter_fourcc(*"mp4v"),
+                fps2,
+                (target_video_width, target_video_height),
             )
 
             # Read frames from the two videos and merge them
             ret1, frame1 = video1.read()
-
-            text_loc_x = (
-                width1
-                - cv2.getTextSize(
-                    f"Enhanced: {fps2} FPS", cv2.FONT_HERSHEY_SIMPLEX, 1.0, 2
-                )[0]
-                - 25
-            )
+            text_loc_x = (target_video_width - cv2.getTextSize(f"Enhanced: {fps2} FPS", cv2.FONT_HERSHEY_SIMPLEX, 1.0, 2)[0][0] - 25)
             while True:
                 merged_frame = 255 * np.ones(
-                    shape=(height1, width1, 3),
+                    shape=(target_video_height, target_video_width, 3),
                     dtype=np.uint8,
                 )
 
@@ -391,120 +390,95 @@ with Blocks(
                             else [255, 255, 255]
                         )
 
-                merged_frame = put_highlighted_text(
+                merged_frame = put_highlighted_texts(
                     input_arrey=merged_frame,
-                    text=f"Original: {fps1} FPS",
-                    position=(25, height1 - 50),
-                )
-                merged_frame = put_highlighted_text(
-                    input_arrey=merged_frame,
-                    text=f"Enhanced: {fps2} FPS",
-                    position=(text_loc_x, 50),
+                    texts={
+                        f"Original: {fps1} FPS": (25, target_video_height - 50),
+                        f"Enhanced: {fps2} FPS": (text_loc_x, 50),
+                    },
                 )
                 # Write the merged frame to the output video
                 merged_video.write(merged_frame)
 
-        elif presentation_mode.startswith("Vertical"):
+        else: # For Vertical or Horizontal Splits....
             merged_video = cv2.VideoWriter(
                 output_path,
                 cv2.VideoWriter_fourcc(*"mp4v"),
                 fps2,
-                (width1 + 1, height1),
-            )
-
-            # Read frames from the two videos and merge them
-            ret1, frame1 = video1.read()
-
-            while True:
-                merged_frame = 255 * np.ones(
-                    shape=(height1, width1 + 1, 3),
-                    dtype=np.uint8,
-                )
-
-                # Read frames from video 2
-                ret2, frame2 = video2.read()
-                if not ret2:
-                    break
-
-                # Repeat frames of video 1
-                if repeat_frame == 0:
-                    repeat_frame = repetition_ratio - 1
-                    # Read frames from video 1
-                    ret1, frame1 = video1.read()
-                    if not ret1:
-                        break
-                else:
-                    repeat_frame = repeat_frame - 1
-
-                merged_frame[:, : width1 // 2], merged_frame[:, 1 + width1 // 2 :] = (
-                    frame1[:, : width1 // 2],
-                    frame2[:, width1 // 2 :],
-                )
-
-                merged_frame = put_highlighted_text(
-                    input_arrey=merged_frame,
-                    text=f"Original: {fps1} FPS",
-                    position=(25, 50),
-                )
-                merged_frame = put_highlighted_text(
-                    input_arrey=merged_frame,
-                    text=f"Enhanced: {fps2} FPS",
-                    position=(25 + width1 // 2, 50),
-                )
-                # Write the merged frame to the output video
-                merged_video.write(merged_frame)
-
-        elif presentation_mode.startswith("Horizontal"):
-            merged_video = cv2.VideoWriter(
-                output_path,
-                cv2.VideoWriter_fourcc(*"mp4v"),
-                fps2,
-                (width1, height1 + 1),
-            )
-
-            # Read frames from the two videos and merge them
-            ret1, frame1 = video1.read()
-
-            while True:
-                merged_frame = 255 * np.ones(
-                    shape=(height1 + 1, width1, 3),
-                    dtype=np.uint8,
-                )
-
-                # Read frames from video 2
-                ret2, frame2 = video2.read()
-                if not ret2:
-                    break
-
-                # Repeat frames of video 1
-                if repeat_frame == 0:
-                    repeat_frame = repetition_ratio - 1
-                    # Read frames from video 1
-                    ret1, frame1 = video1.read()
-                    if not ret1:
-                        break
-                else:
-                    repeat_frame = repeat_frame - 1
-
                 (
-                    merged_frame[: height1 // 2, :width1],
-                    merged_frame[height1 // 2 + 1 :, :width1],
-                ) = (
-                    frame1[: height1 // 2, :width1],
-                    frame2[height1 // 2 :, :width1],
+                    target_video_width + 1
+                    if presentation_mode.startswith("Vertical")
+                    else target_video_width,
+                    target_video_height + 1
+                    if presentation_mode.startswith("Horizontal")
+                    else target_video_height,
+                ),
+            )
+
+            ret1, frame1 = video1.read()
+
+            while True:
+                merged_frame = 255 * np.ones(
+                    shape=(
+                        target_video_height + 1
+                        if presentation_mode.startswith("Horizontal")
+                        else target_video_height,
+                        target_video_width + 1
+                        if presentation_mode.startswith("Vertical")
+                        else target_video_width,
+                        3,
+                    ),
+                    dtype=np.uint8,
                 )
 
-                merged_frame = put_highlighted_text(
-                    input_arrey=merged_frame,
-                    text=f"Original: {fps1} FPS",
-                    position=(25, 50),
-                )
-                merged_frame = put_highlighted_text(
-                    input_arrey=merged_frame,
-                    text=f"Enhanced: {fps2} FPS",
-                    position=(25, height1 // 2 + 50),
-                )
-                # Write the merged frame to the output video
+                ret2, frame2 = video2.read()
+                if not ret2:
+                    break
+
+                if repeat_frame == 0:
+                    repeat_frame = repetition_ratio - 1
+                    ret1, frame1 = video1.read()
+                    if not ret1:
+                        break
+                else:
+                    repeat_frame -= 1
+
+                if presentation_mode.startswith("Vertical"):
+                    (
+                        merged_frame[:, : target_video_width // 2],
+                        merged_frame[:, 1 + target_video_width // 2 :],
+                    ) = (
+                        frame1[:, : target_video_width // 2],
+                        frame2[:, target_video_width // 2 :],
+                    )
+                    merged_frame = put_highlighted_texts(
+                        input_arrey=merged_frame,
+                        texts={
+                            f"Original: {fps1} FPS": (25, 50),
+                            f"Enhanced: {fps2} FPS": (25 + target_video_width // 2, 50),
+                        },
+                    )
+                elif presentation_mode.startswith("Horizontal"):
+                    (
+                        merged_frame[: target_video_height // 2, :target_video_width],
+                        merged_frame[
+                            target_video_height // 2 + 1 :, :target_video_width
+                        ],
+                    ) = (
+                        frame1[: target_video_height // 2, :target_video_width],
+                        frame2[target_video_height // 2 :, :target_video_width],
+                    )
+                    merged_frame = put_highlighted_texts(
+                        input_arrey=merged_frame,
+                        texts={
+                            f"Original: {fps1} FPS": (25, 50),
+                            f"Enhanced: {fps2} FPS": (
+                                25,
+                                target_video_height // 2 + 50,
+                            ),
+                        },
+                    )
+
                 merged_video.write(merged_frame)
 
         # Release the resources
