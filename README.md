@@ -1,6 +1,6 @@
 # Framester
 
-<p align="center">
+<div align="center">
 <!-- PROJECT LOGO -->
 
 ![AI Video manipulation toolbox!](demo/assets/banner.jpg "FUCK YOU!")
@@ -12,7 +12,7 @@ An AI driven Video manipulation toolkit
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
-</p>
+</div>
 
 ## About The Project
 
@@ -52,7 +52,7 @@ NOTE: We will provide trained models soon.
 Please make sure that you have:
 
 1. Python3 programming Language
-2. ![nVIDIA](https://img.shields.io/badge/nVIDIA-%2376B900.svg?style=for-the-badge&logo=nVIDIA&logoColor=white) GPU (We tested with RTX 3070 Notebook GPU)
+2. NVIDIA RTX 30xx GPU (We have tested with RTX 3070 Notebook GPU)
 3. CUDA with appropriate cuDNN installed
 
 ### Installation
