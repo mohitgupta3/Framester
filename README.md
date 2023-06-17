@@ -57,20 +57,21 @@ Please make sure that you have:
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the _main_ branch
+NOTE: We will share the model weights soon.
+
+1. Clone the _main_ branch
 
    ```sh
    git clone https://github.com/mohitgupta3/Framester.git
    ```
 
-3. Install Python packages
+2. Install Python packages
 
    ```sh
    pip3 install -r requirements.txt
    ```
 
-4. Run the `Gradio` app
+3. Run the `Gradio` app
 
    ```sh
    gradio app.py
