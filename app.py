@@ -24,15 +24,15 @@ from gradio import (
 )
 from tqdm import tqdm
 
-from lib.interpolate import DeepInterpolate, Interpolate, InterpolateEngine
-from lib.upscale.upscale_series import UpscaleSeries
-from lib.utils.file_utils import (
+from backend.interpolate import DeepInterpolate, Interpolate, InterpolateEngine
+from backend.upscale.upscale_series import UpscaleSeries
+from backend.utils.file_utils import (
     count_images_in_directory,
     create_directory,
     get_files,
     remove_directory,
 )
-from lib.utils.simple_icons import SimpleIcons
+from backend.utils.simple_icons import SimpleIcons
 
 
 class SimpleLog:

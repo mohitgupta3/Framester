@@ -8,12 +8,12 @@ import numpy as np
 import random
 import argparse
 
-from lib.interpolate.model.Trainer import Model
-from lib.interpolate.dataset import VimeoDataset
+from backend.interpolate.model.Trainer import Model
+from backend.interpolate.dataset import VimeoDataset
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data.distributed import DistributedSampler
-from lib.config import *
+from backend.config import *
 
 device = torch.device("cuda")
 exp = os.path.abspath('.').split('/')[-1]

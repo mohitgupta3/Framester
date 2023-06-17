@@ -14,8 +14,8 @@ from typing import Callable
 
 from tqdm import tqdm
 
-import lib.config as cfg  # pylint: disable=import-error
-from lib.interpolate.model.Trainer import Model
+import backend.config as cfg  # pylint: disable=import-error
+from backend.interpolate.model.Trainer import Model
 
 from ..utils.file_utils import split_filepath
 from ..utils.simple_utils import max_steps, sortable_float_index
